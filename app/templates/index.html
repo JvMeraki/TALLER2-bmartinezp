@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Sonidos de Animales</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- Librería Prism.js para highlight del JSON -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+</head>
+<body>
+    <h1>Consulta de Sonidos de Animales</h1>
+
+    <label for="animal">Selecciona un animal:</label>
+    <select id="animal">
+        {% for animal in animales %}
+            <option value="{{ animal }}">{{ animal }}</option>
+        {% endfor %}
+    </select>
+
+    <button onclick="consultarSonido()">Consultar</button>
+
+    <p id="resultado"></p>
+
+    <pre id="jsonResultado" class="language-json"></pre>
+
+    <script>
+        function consultarSonido() {
+            let animalSeleccionado = document.getElementById("animal").value;
+            fetch(`/sonido/${animalSeleccionado}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sonido) {
+                        document.getElementById("resultado").innerText = `El sonido de ${animalSeleccionado} es: ${data.sonido}`;
+                    } else {
+                        document.getElementById("resultado").innerText = "No se encontró el sonido.";
+                    }
+        
+                    // Mostrar JSON con colores
+                    let jsonPretty = JSON.stringify(data, null, 2);
+                    document.getElementById("jsonResultado").innerHTML = Prism.highlight(jsonPretty, Prism.languages.json, "json");
+                })
+                .catch(error => {
+                    console.error("Error al consultar el sonido:", error);
+                    document.getElementById("resultado").innerText = "Error al obtener los datos.";
+                });
+        }
+    </script>
+</body>
+</html>
